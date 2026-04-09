@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { Maximize, FileDown } from "lucide-react";
+import { Maximize, FileDown, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { KPICards } from "@/components/dashboard/KPICards";
@@ -10,6 +10,7 @@ import {
   ChartMotivo,
   ChartEvolucaoMensal,
   ChartDefeitos,
+  ChartColaborador,
 } from "@/components/dashboard/Charts";
 import { InspectionTable } from "@/components/dashboard/InspectionTable";
 import { FileUpload } from "@/components/dashboard/FileUpload";
@@ -35,7 +36,7 @@ export default function Index() {
       const records = await parseExcelFile(file);
       setData(records);
       setFilters(INITIAL_FILTERS);
-      toast({ title: "Planilha importada", description: `${records.length} registros carregados.` });
+      toast({ title: "Planilha importada", description: `${records.length} registros carregados com sucesso.` });
     } catch {
       toast({ title: "Erro ao importar", description: "Verifique o formato da planilha.", variant: "destructive" });
     }
@@ -64,21 +65,26 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card px-4 py-3 md:px-6 print:border-none">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-xl font-bold md:text-2xl">Controle de Inspeção de Talhas</h1>
-            <p className="text-sm text-muted-foreground">Dashboard de manutenção e inspeção industrial</p>
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-card/90 border-b border-border/60 px-4 py-3 md:px-8 print:border-none print:relative">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between max-w-[1600px] mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-[hsl(215,75%,50%)] to-[hsl(200,80%,55%)]">
+              <BarChart3 className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold md:text-xl tracking-tight">Controle de Inspeção de Talhas</h1>
+              <p className="text-xs text-muted-foreground">Dashboard de manutenção e inspeção industrial</p>
+            </div>
           </div>
           <div className="flex items-center gap-2 print:hidden">
             <FileUpload onFile={handleFile} hasData={data.length > 0} />
             {data.length > 0 && (
               <>
-                <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2">
-                  <FileDown className="h-4 w-4" /> PDF
+                <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2 text-xs">
+                  <FileDown className="h-3.5 w-3.5" /> Exportar PDF
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleFullscreen} className="gap-2">
-                  <Maximize className="h-4 w-4" /> Apresentação
+                <Button variant="outline" size="sm" onClick={handleFullscreen} className="gap-2 text-xs">
+                  <Maximize className="h-3.5 w-3.5" /> Apresentação
                 </Button>
               </>
             )}
@@ -86,15 +92,15 @@ export default function Index() {
         </div>
       </header>
 
-      <main className="p-4 md:p-6 space-y-6">
+      <main className="p-4 md:p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto">
         {data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
-            <div className="rounded-full bg-muted p-6 mb-4">
-              <FileDown className="h-10 w-10 text-muted-foreground" />
+            <div className="rounded-2xl bg-gradient-to-br from-[hsl(215,75%,50%,0.08)] to-[hsl(200,80%,55%,0.05)] p-8 mb-6">
+              <BarChart3 className="h-12 w-12 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold mb-1">Nenhuma planilha carregada</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Importe um arquivo Excel (.xlsx) para visualizar o dashboard
+            <h2 className="text-xl font-bold mb-2">Nenhuma planilha carregada</h2>
+            <p className="text-sm text-muted-foreground mb-6 max-w-md">
+              Importe um arquivo Excel (.xlsx) para visualizar o dashboard completo com gráficos e indicadores
             </p>
             <FileUpload onFile={handleFile} hasData={false} />
           </div>
@@ -109,25 +115,26 @@ export default function Index() {
             <KPICards data={filtered} />
 
             {/* Charts row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <ChartInspecoesPorEquipamento data={filtered} />
               <ChartStatusPizza data={filtered} />
             </div>
 
             {/* Charts row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <ChartMotivo data={filtered} />
               <ChartEvolucaoMensal data={filtered} />
             </div>
 
             {/* Charts row 3 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <ChartDefeitos data={filtered} />
+              <ChartColaborador data={filtered} />
             </div>
 
             {/* Table */}
-            <div>
-              <h2 className="text-lg font-semibold mb-3">Registro de Inspeções</h2>
+            <div className="card-elevated p-5">
+              <h2 className="text-sm font-semibold mb-4 tracking-tight">Registro de Inspeções</h2>
               <InspectionTable data={filtered} />
             </div>
           </>

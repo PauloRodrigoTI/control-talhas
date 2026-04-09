@@ -1,6 +1,26 @@
 import * as XLSX from "xlsx";
 import type { InspectionRecord } from "@/types/inspection";
 
+function findHeaderRow(sheet: XLSX.WorkSheet): number {
+  const range = XLSX.utils.decode_range(sheet["!ref"] || "A1");
+  for (let r = range.s.r; r <= Math.min(range.s.r + 10, range.e.r); r++) {
+    const cell = sheet[XLSX.utils.encode_cell({ r, c: 0 })];
+    const val = String(cell?.v ?? "").trim().toUpperCase();
+    if (val === "EQUIPAMENTO") return r;
+  }
+  return 0;
+}
+
+function normalize(s: string): string {
+  return s.trim().toUpperCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function matchCol(normalized: string, candidates: string[]): boolean {
+  return candidates.some((c) => normalized.includes(c));
+}
+
 export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -9,44 +29,97 @@ export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: "array" });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: "" });
 
-        const records: InspectionRecord[] = json.map((row) => {
-          const aptoRaw = String(row["APTO P/ USO"] ?? "").trim().toUpperCase();
-          const naoAptoRaw = String(row["NÃO APTO"] ?? "").trim().toUpperCase();
-          const sucataRaw = String(row["SUCATA"] ?? "").trim().toUpperCase();
-
-          const aptoUso = aptoRaw === "X" || aptoRaw === "SIM";
-          const naoApto = naoAptoRaw === "X" || naoAptoRaw === "SIM";
-          const sucata = sucataRaw === "X" || sucataRaw === "SIM";
-
-          let status: InspectionRecord["status"] = "Apto";
-          if (sucata) status = "Sucata";
-          else if (naoApto) status = "Não Apto";
-          else if (aptoUso) status = "Apto";
-
-          return {
-            equipamento: String(row["EQUIPAMENTO"] ?? ""),
-            modelo: String(row["MODELO"] ?? ""),
-            fabricacao: String(row["FABRICAÇÃO"] ?? ""),
-            anoFabricacao: String(row["ANO DE FABRICAÇÃO"] ?? ""),
-            tag: String(row["TAG"] ?? ""),
-            capacidadeElevacao: String(row["CAPACIDADE E ELEVAÇÃO"] ?? ""),
-            cargaTeste: String(row["CARGA DE TESTE"] ?? ""),
-            motivoInspecao: String(row["MOTIVO DA INSPEÇÃO"] ?? ""),
-            pecasSubstituidas: String(row["PECAS SUBSTITUIDAS"] ?? ""),
-            defeito: String(row["DEFEITO"] ?? ""),
-            obs: String(row["OBS"] ?? ""),
-            colaborador: String(row["COLABORADOR"] ?? ""),
-            qtd: Number(row["QTD"] ?? 1),
-            aptoUso,
-            naoApto,
-            sucata,
-            mes: String(row["MÊS"] ?? ""),
-            obsChecklist: String(row["OBS. CHECKLIST"] ?? ""),
-            status,
-          };
+        const headerRow = findHeaderRow(sheet);
+        const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
+          defval: "",
+          range: headerRow,
         });
+
+        // Build a flexible column mapping based on normalized header names
+        const sampleKeys = json.length > 0 ? Object.keys(json[0]) : [];
+        const colMap: Record<string, string> = {};
+        for (const key of sampleKeys) {
+          const n = normalize(key);
+          if (n === "EQUIPAMENTO") colMap.equipamento = key;
+          else if (n === "MODELO") colMap.modelo = key;
+          else if (matchCol(n, ["FABRICACAO"]) && !n.includes("ANO")) colMap.fabricacao = key;
+          else if (matchCol(n, ["ANO DE FABRICACAO", "ANO"])) colMap.anoFabricacao = key;
+          else if (n === "TAG") colMap.tag = key;
+          else if (matchCol(n, ["CAPACIDADE"])) colMap.capacidadeElevacao = key;
+          else if (matchCol(n, ["CARGA"])) colMap.cargaTeste = key;
+          else if (matchCol(n, ["MOTIVO"])) colMap.motivoInspecao = key;
+          else if (matchCol(n, ["PECAS", "PECAS SUBSTITUIDAS"])) colMap.pecasSubstituidas = key;
+          else if (matchCol(n, ["DEFEITO"])) colMap.defeito = key;
+          else if (n === "OBS" || n === "OBSERVACOES") colMap.obs = key;
+          else if (matchCol(n, ["COLABORADOR"])) colMap.colaborador = key;
+          else if (n === "QTD" || matchCol(n, ["QUANTIDADE"])) colMap.qtd = key;
+          else if (matchCol(n, ["APTO"])) colMap.aptoParaUso = key;
+          else if (matchCol(n, ["NAO APTO"])) colMap.naoApto = key;
+          else if (matchCol(n, ["SUCATA"])) colMap.sucata = key;
+          else if (n === "MES") colMap.mes = key;
+          else if (matchCol(n, ["OBS. CHECKLIST", "OBS CHECKLIST"])) colMap.obsChecklist = key;
+        }
+
+        const g = (row: Record<string, unknown>, field: string) =>
+          String(row[colMap[field] ?? ""] ?? "").trim();
+
+        const records: InspectionRecord[] = json
+          .filter((row) => g(row, "equipamento") !== "")
+          .map((row) => {
+            // Determine status — supports both single-column ("APTO PARA USO")
+            // and multi-column ("APTO P/ USO" + "NÃO APTO" + "SUCATA") layouts
+            let status: InspectionRecord["status"] = "Apto";
+            let aptoUso = false;
+            let naoApto = false;
+            let sucata = false;
+
+            if (colMap.aptoParaUso) {
+              const raw = g(row, "aptoParaUso").toUpperCase();
+              if (raw === "SUCATA") {
+                sucata = true;
+                status = "Sucata";
+              } else if (raw === "NÃO" || raw === "NAO" || raw === "N") {
+                naoApto = true;
+                status = "Não Apto";
+              } else if (raw === "SIM" || raw === "S" || raw === "X") {
+                aptoUso = true;
+                status = "Apto";
+              }
+            }
+
+            // If separate columns exist, they take priority
+            if (colMap.sucata) {
+              const raw = g(row, "sucata").toUpperCase();
+              if (raw === "X" || raw === "SIM") { sucata = true; status = "Sucata"; }
+            }
+            if (colMap.naoApto) {
+              const raw = g(row, "naoApto").toUpperCase();
+              if (raw === "X" || raw === "SIM") { naoApto = true; status = "Não Apto"; }
+            }
+
+            return {
+              equipamento: g(row, "equipamento"),
+              modelo: g(row, "modelo"),
+              fabricacao: g(row, "fabricacao"),
+              anoFabricacao: g(row, "anoFabricacao"),
+              tag: g(row, "tag"),
+              capacidadeElevacao: g(row, "capacidadeElevacao"),
+              cargaTeste: g(row, "cargaTeste"),
+              motivoInspecao: g(row, "motivoInspecao"),
+              pecasSubstituidas: g(row, "pecasSubstituidas"),
+              defeito: g(row, "defeito"),
+              obs: g(row, "obs"),
+              colaborador: g(row, "colaborador"),
+              qtd: Number(row[colMap.qtd ?? ""] ?? 1) || 1,
+              aptoUso,
+              naoApto,
+              sucata,
+              mes: g(row, "mes"),
+              obsChecklist: g(row, "obsChecklist"),
+              status,
+            };
+          });
 
         resolve(records);
       } catch (err) {

@@ -54,7 +54,7 @@ function countBy(data: InspectionRecord[], key: keyof InspectionRecord) {
 }
 
 /* ── Wrapper Card ── */
-function ChartCard({ title, children, className = "h-72" }: { title: string; children: React.ReactNode; className?: string }) {
+function ChartCard({ title, children, className = "h-72" }: { title: string; children: React.ReactElement; className?: string }) {
   return (
     <Card className="card-elevated border-none">
       <CardHeader className="pb-1 pt-4 px-5">

@@ -4,50 +4,59 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 25% 15%;
+    --background: 220 20% 97%;
+    --foreground: 220 25% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card-foreground: 220 25% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover-foreground: 220 25% 12%;
 
-    --primary: 210 70% 45%;
+    --primary: 215 70% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 15% 93%;
-    --secondary-foreground: 215 25% 15%;
+    --secondary: 215 15% 93%;
+    --secondary-foreground: 220 25% 12%;
 
-    --muted: 210 15% 95%;
-    --muted-foreground: 215 10% 45%;
+    --muted: 220 15% 95%;
+    --muted-foreground: 220 10% 46%;
 
-    --accent: 210 15% 93%;
-    --accent-foreground: 215 25% 15%;
+    --accent: 215 20% 93%;
+    --accent-foreground: 220 25% 12%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 20% 90%;
-    --input: 214 20% 90%;
-    --ring: 210 70% 45%;
+    --border: 220 15% 91%;
+    --input: 220 15% 91%;
+    --ring: 215 70% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.625rem;
 
     /* Dashboard semantic colors */
-    --status-apto: 145 63% 42%;
-    --status-apto-bg: 145 60% 95%;
-    --status-nao-apto: 0 72% 51%;
-    --status-nao-apto-bg: 0 70% 96%;
-    --status-sucata: 215 10% 55%;
-    --status-sucata-bg: 215 10% 94%;
-    --status-pendente: 210 70% 45%;
+    --status-apto: 152 60% 40%;
+    --status-apto-bg: 152 55% 94%;
+    --status-nao-apto: 0 68% 52%;
+    --status-nao-apto-bg: 0 65% 96%;
+    --status-sucata: 220 8% 52%;
+    --status-sucata-bg: 220 10% 94%;
+    --status-pendente: 215 70% 45%;
 
-    --chart-1: 210 70% 45%;
-    --chart-2: 145 63% 42%;
-    --chart-3: 0 72% 51%;
-    --chart-4: 215 10% 55%;
-    --chart-5: 35 90% 55%;
+    /* Chart palette – vibrant and professional */
+    --chart-1: 215 75% 50%;
+    --chart-2: 152 60% 40%;
+    --chart-3: 0 68% 52%;
+    --chart-4: 220 8% 52%;
+    --chart-5: 36 90% 52%;
+    --chart-6: 262 60% 55%;
+    --chart-7: 190 70% 42%;
+
+    /* Gradient accents */
+    --gradient-blue: linear-gradient(135deg, hsl(215 75% 50%), hsl(200 80% 55%));
+    --gradient-green: linear-gradient(135deg, hsl(152 60% 40%), hsl(165 55% 48%));
+    --gradient-red: linear-gradient(135deg, hsl(0 68% 52%), hsl(15 75% 56%));
+    --gradient-gray: linear-gradient(135deg, hsl(220 8% 52%), hsl(220 12% 62%));
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -60,25 +69,25 @@
   }
 
   .dark {
-    --background: 215 25% 10%;
-    --foreground: 210 20% 95%;
-    --card: 215 25% 13%;
-    --card-foreground: 210 20% 95%;
-    --popover: 215 25% 13%;
-    --popover-foreground: 210 20% 95%;
-    --primary: 210 70% 50%;
+    --background: 220 25% 8%;
+    --foreground: 220 20% 95%;
+    --card: 220 22% 11%;
+    --card-foreground: 220 20% 95%;
+    --popover: 220 22% 11%;
+    --popover-foreground: 220 20% 95%;
+    --primary: 215 70% 52%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 215 20% 20%;
-    --secondary-foreground: 210 20% 95%;
-    --muted: 215 20% 18%;
-    --muted-foreground: 215 15% 60%;
-    --accent: 215 20% 20%;
-    --accent-foreground: 210 20% 95%;
+    --secondary: 220 18% 18%;
+    --secondary-foreground: 220 20% 95%;
+    --muted: 220 18% 16%;
+    --muted-foreground: 220 12% 58%;
+    --accent: 220 18% 18%;
+    --accent-foreground: 220 20% 95%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 20% 20%;
-    --input: 215 20% 20%;
-    --ring: 210 70% 50%;
+    --border: 220 18% 18%;
+    --input: 220 18% 18%;
+    --ring: 215 70% 52%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -95,7 +104,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
   }
 }
 
@@ -109,4 +119,11 @@
   .status-sucata {
     @apply text-[hsl(var(--status-sucata))] bg-[hsl(var(--status-sucata-bg))];
   }
+  .card-elevated {
+    @apply bg-card rounded-xl shadow-sm border border-border/50 hover:shadow-md transition-all duration-300;
+  }
+}
+
+@media print {
+  .print\:break-inside-avoid { break-inside: avoid; }
 }

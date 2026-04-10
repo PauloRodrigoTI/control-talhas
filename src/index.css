@@ -126,4 +126,48 @@
 
 @media print {
   .print\:break-inside-avoid { break-inside: avoid; }
+
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-size: 10px;
+  }
+
+  .print\:hidden,
+  .print-hidden {
+    display: none !important;
+  }
+
+  .card-elevated {
+    box-shadow: none !important;
+    border: 1px solid hsl(220, 15%, 88%) !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  header {
+    position: relative !important;
+    border-bottom: 2px solid hsl(215, 75%, 50%) !important;
+    margin-bottom: 8px;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  /* Ensure charts render with colors */
+  svg {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  /* KPI grid compact */
+  .grid {
+    gap: 8px !important;
+  }
 }

@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      inspections: {
+        Row: {
+          ano_fabricacao: string
+          apto_uso: boolean
+          capacidade_elevacao: string
+          carga_teste: string
+          colaborador: string
+          created_at: string
+          defeito: string
+          equipamento: string
+          fabricacao: string
+          id: string
+          mes: string
+          modelo: string
+          motivo_inspecao: string
+          nao_apto: boolean
+          obs: string
+          obs_checklist: string
+          pecas_substituidas: string
+          qtd: number
+          status: string
+          sucata: boolean
+          tag: string
+        }
+        Insert: {
+          ano_fabricacao?: string
+          apto_uso?: boolean
+          capacidade_elevacao?: string
+          carga_teste?: string
+          colaborador?: string
+          created_at?: string
+          defeito?: string
+          equipamento?: string
+          fabricacao?: string
+          id?: string
+          mes?: string
+          modelo?: string
+          motivo_inspecao?: string
+          nao_apto?: boolean
+          obs?: string
+          obs_checklist?: string
+          pecas_substituidas?: string
+          qtd?: number
+          status?: string
+          sucata?: boolean
+          tag?: string
+        }
+        Update: {
+          ano_fabricacao?: string
+          apto_uso?: boolean
+          capacidade_elevacao?: string
+          carga_teste?: string
+          colaborador?: string
+          created_at?: string
+          defeito?: string
+          equipamento?: string
+          fabricacao?: string
+          id?: string
+          mes?: string
+          modelo?: string
+          motivo_inspecao?: string
+          nao_apto?: boolean
+          obs?: string
+          obs_checklist?: string
+          pecas_substituidas?: string
+          qtd?: number
+          status?: string
+          sucata?: boolean
+          tag?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

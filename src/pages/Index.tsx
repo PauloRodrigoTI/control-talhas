@@ -1,7 +1,8 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Maximize, FileDown, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useInspections } from "@/hooks/useInspections";
 import { KPICards } from "@/components/dashboard/KPICards";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import {
@@ -14,6 +15,7 @@ import {
 } from "@/components/dashboard/Charts";
 import { InspectionTable } from "@/components/dashboard/InspectionTable";
 import { FileUpload } from "@/components/dashboard/FileUpload";
+import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 import { parseExcelFile } from "@/utils/parseExcel";
 import type { InspectionRecord, DashboardFilters as Filters } from "@/types/inspection";
 
@@ -27,20 +29,32 @@ const INITIAL_FILTERS: Filters = {
 };
 
 export default function Index() {
-  const [data, setData] = useState<InspectionRecord[]>([]);
+  const { data, setData, loading, loadFromDb, saveToDb } = useInspections();
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   const { toast } = useToast();
+
+  // Load data from database on mount
+  useEffect(() => {
+    loadFromDb();
+  }, [loadFromDb]);
 
   const handleFile = useCallback(async (file: File) => {
     try {
       const records = await parseExcelFile(file);
       setData(records);
       setFilters(INITIAL_FILTERS);
-      toast({ title: "Planilha importada", description: `${records.length} registros carregados com sucesso.` });
+      
+      // Save to database
+      const saved = await saveToDb(records);
+      if (saved) {
+        toast({ title: "Planilha importada", description: `${records.length} registros salvos no banco de dados.` });
+      } else {
+        toast({ title: "Planilha importada", description: `${records.length} registros carregados (erro ao salvar no banco).`, variant: "destructive" });
+      }
     } catch {
       toast({ title: "Erro ao importar", description: "Verifique o formato da planilha.", variant: "destructive" });
     }
-  }, [toast]);
+  }, [toast, setData, saveToDb]);
 
   const filtered = useMemo(() => {
     return data.filter((d) => {
@@ -77,6 +91,7 @@ export default function Index() {
             </div>
           </div>
           <div className="flex items-center gap-2 print:hidden">
+            <ThemeToggle />
             <FileUpload onFile={handleFile} hasData={data.length > 0} />
             {data.length > 0 && (
               <>
@@ -93,7 +108,11 @@ export default function Index() {
       </header>
 
       <main className="p-4 md:p-6 lg:p-8 space-y-6 max-w-[1600px] mx-auto">
-        {data.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-32">
+            <p className="text-muted-foreground">Carregando dados...</p>
+          </div>
+        ) : data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <div className="rounded-2xl bg-gradient-to-br from-[hsl(215,75%,50%,0.08)] to-[hsl(200,80%,55%,0.05)] p-8 mb-6">
               <BarChart3 className="h-12 w-12 text-primary" />

@@ -42,18 +42,20 @@ export default function Index() {
   const handleFile = useCallback(async (file: File) => {
     try {
       const records = await parseExcelFile(file);
-      setData(records);
-      setFilters(INITIAL_FILTERS);
-      
-      // Save to database
-      const saved = await saveToDb(records);
-      if (saved) {
-        toast({ title: "Planilha importada", description: `${records.length} registros salvos no banco de dados.` });
-      } else {
-        toast({ title: "Planilha importada", description: `${records.length} registros carregados (erro ao salvar no banco).`, variant: "destructive" });
-      }
+      await syncAndSave(records);
     } catch {
       toast({ title: "Erro ao importar", description: "Verifique o formato da planilha.", variant: "destructive" });
+    }
+  }, [toast, setData, saveToDb]);
+
+  const syncAndSave = useCallback(async (records: InspectionRecord[]) => {
+    setData(records);
+    setFilters(INITIAL_FILTERS);
+    const saved = await saveToDb(records);
+    if (saved) {
+      toast({ title: "Dados atualizados", description: `${records.length} registros salvos no banco de dados.` });
+    } else {
+      toast({ title: "Dados carregados", description: `${records.length} registros (erro ao salvar).`, variant: "destructive" });
     }
   }, [toast, setData, saveToDb]);
 

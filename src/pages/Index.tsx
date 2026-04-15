@@ -16,6 +16,7 @@ import {
 import { InspectionTable } from "@/components/dashboard/InspectionTable";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
+import { ExcelOnlineSync } from "@/components/dashboard/ExcelOnlineSync";
 import { parseExcelFile } from "@/utils/parseExcel";
 import type { InspectionRecord, DashboardFilters as Filters } from "@/types/inspection";
 

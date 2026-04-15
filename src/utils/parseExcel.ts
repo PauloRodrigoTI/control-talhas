@@ -36,7 +36,6 @@ export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
           range: headerRow,
         });
 
-        // Build a flexible column mapping based on normalized header names
         const sampleKeys = json.length > 0 ? Object.keys(json[0]) : [];
         const colMap: Record<string, string> = {};
         for (const key of sampleKeys) {
@@ -47,18 +46,21 @@ export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
           else if (matchCol(n, ["ANO DE FABRICACAO", "ANO"])) colMap.anoFabricacao = key;
           else if (n === "TAG") colMap.tag = key;
           else if (matchCol(n, ["CAPACIDADE"])) colMap.capacidadeElevacao = key;
-          else if (matchCol(n, ["CARGA"])) colMap.cargaTeste = key;
+          else if (matchCol(n, ["CARGA DE TESTE", "CARGA"])) colMap.cargaTeste = key;
+          else if (matchCol(n, ["DATA DE TESTE", "DATA TESTE"])) colMap.dataTeste = key;
           else if (matchCol(n, ["MOTIVO"])) colMap.motivoInspecao = key;
-          else if (matchCol(n, ["PECAS", "PECAS SUBSTITUIDAS"])) colMap.pecasSubstituidas = key;
+          else if (n === "PECAS SUBSTITUIDAS" || matchCol(n, ["PECAS SUBSTITUIDAS"])) colMap.pecasSubstituidas = key;
+          else if (matchCol(n, ["SE SIM", "SE SIM, QUAL", "SE SIM QUAL"])) colMap.seSimQual = key;
           else if (matchCol(n, ["DEFEITO"])) colMap.defeito = key;
-          else if (n === "OBS" || n === "OBSERVACOES") colMap.obs = key;
+          else if (matchCol(n, ["OQUE FOI FEITO", "O QUE FOI FEITO"])) colMap.oqueFoiFeito = key;
           else if (matchCol(n, ["COLABORADOR"])) colMap.colaborador = key;
           else if (n === "QTD" || matchCol(n, ["QUANTIDADE"])) colMap.qtd = key;
-          else if (matchCol(n, ["APTO"])) colMap.aptoParaUso = key;
+          else if (matchCol(n, ["APTO PARA USO", "APTO P/ USO", "APTO"])) colMap.aptoParaUso = key;
           else if (matchCol(n, ["NAO APTO"])) colMap.naoApto = key;
           else if (matchCol(n, ["SUCATA"])) colMap.sucata = key;
           else if (n === "MES") colMap.mes = key;
           else if (matchCol(n, ["OBS. CHECKLIST", "OBS CHECKLIST"])) colMap.obsChecklist = key;
+          else if (n === "OBS" || n === "OBSERVACOES") colMap.obs = key;
         }
 
         const g = (row: Record<string, unknown>, field: string) =>
@@ -67,8 +69,6 @@ export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
         const records: InspectionRecord[] = json
           .filter((row) => g(row, "equipamento") !== "")
           .map((row) => {
-            // Determine status — supports both single-column ("APTO PARA USO")
-            // and multi-column ("APTO P/ USO" + "NÃO APTO" + "SUCATA") layouts
             let status: InspectionRecord["status"] = "Apto";
             let aptoUso = false;
             let naoApto = false;
@@ -88,7 +88,6 @@ export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
               }
             }
 
-            // If separate columns exist, they take priority
             if (colMap.sucata) {
               const raw = g(row, "sucata").toUpperCase();
               if (raw === "X" || raw === "SIM") { sucata = true; status = "Sucata"; }
@@ -106,10 +105,12 @@ export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
               tag: g(row, "tag"),
               capacidadeElevacao: g(row, "capacidadeElevacao"),
               cargaTeste: g(row, "cargaTeste"),
+              dataTeste: g(row, "dataTeste"),
               motivoInspecao: g(row, "motivoInspecao"),
               pecasSubstituidas: g(row, "pecasSubstituidas"),
+              seSimQual: g(row, "seSimQual"),
               defeito: g(row, "defeito"),
-              obs: g(row, "obs"),
+              oqueFoiFeito: g(row, "oqueFoiFeito"),
               colaborador: g(row, "colaborador"),
               qtd: Number(row[colMap.qtd ?? ""] ?? 1) || 1,
               aptoUso,

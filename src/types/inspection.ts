@@ -6,10 +6,12 @@ export interface InspectionRecord {
   tag: string;
   capacidadeElevacao: string;
   cargaTeste: string;
+  dataTeste: string;
   motivoInspecao: string;
   pecasSubstituidas: string;
+  seSimQual: string;
   defeito: string;
-  obs: string;
+  oqueFoiFeito: string;
   colaborador: string;
   qtd: number;
   aptoUso: boolean;

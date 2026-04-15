@@ -22,9 +22,13 @@ const COLUMNS: { key: SortKey; label: string }[] = [
   { key: "equipamento", label: "Equipamento" },
   { key: "modelo", label: "Modelo" },
   { key: "capacidadeElevacao", label: "Capacidade" },
+  { key: "cargaTeste", label: "Carga Teste" },
+  { key: "dataTeste", label: "Data Teste" },
   { key: "motivoInspecao", label: "Motivo" },
+  { key: "pecasSubstituidas", label: "Peças Subst." },
+  { key: "seSimQual", label: "Se Sim, Qual" },
   { key: "defeito", label: "Defeito" },
-  { key: "pecasSubstituidas", label: "Peças" },
+  { key: "oqueFoiFeito", label: "O que foi feito" },
   { key: "colaborador", label: "Colaborador" },
   { key: "mes", label: "Mês" },
   { key: "status", label: "Status" },
@@ -91,9 +95,13 @@ export function InspectionTable({ data }: Props) {
                 <TableCell>{row.equipamento}</TableCell>
                 <TableCell>{row.modelo}</TableCell>
                 <TableCell>{row.capacidadeElevacao}</TableCell>
+                <TableCell>{row.cargaTeste}</TableCell>
+                <TableCell>{row.dataTeste}</TableCell>
                 <TableCell>{row.motivoInspecao}</TableCell>
-                <TableCell>{row.defeito}</TableCell>
                 <TableCell>{row.pecasSubstituidas}</TableCell>
+                <TableCell>{row.seSimQual}</TableCell>
+                <TableCell>{row.defeito}</TableCell>
+                <TableCell>{row.oqueFoiFeito}</TableCell>
                 <TableCell>{row.colaborador}</TableCell>
                 <TableCell>{row.mes}</TableCell>
                 <TableCell>

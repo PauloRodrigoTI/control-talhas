@@ -12,10 +12,12 @@ function toDbRecord(r: InspectionRecord) {
     tag: r.tag,
     capacidade_elevacao: r.capacidadeElevacao,
     carga_teste: r.cargaTeste,
+    data_teste: r.dataTeste,
     motivo_inspecao: r.motivoInspecao,
     pecas_substituidas: r.pecasSubstituidas,
+    se_sim_qual: r.seSimQual,
     defeito: r.defeito,
-    obs: r.obs,
+    oque_foi_feito: r.oqueFoiFeito,
     colaborador: r.colaborador,
     qtd: r.qtd,
     apto_uso: r.aptoUso,
@@ -36,10 +38,12 @@ function fromDbRow(row: any): InspectionRecord {
     tag: row.tag,
     capacidadeElevacao: row.capacidade_elevacao,
     cargaTeste: row.carga_teste,
+    dataTeste: row.data_teste ?? "",
     motivoInspecao: row.motivo_inspecao,
     pecasSubstituidas: row.pecas_substituidas,
+    seSimQual: row.se_sim_qual ?? "",
     defeito: row.defeito,
-    obs: row.obs,
+    oqueFoiFeito: row.oque_foi_feito ?? "",
     colaborador: row.colaborador,
     qtd: row.qtd,
     aptoUso: row.apto_uso,
@@ -72,10 +76,8 @@ export function useInspections() {
   }, [toast]);
 
   const saveToDb = useCallback(async (records: InspectionRecord[]) => {
-    // Clear existing data and insert new
     await supabase.from("inspections").delete().neq("id", "00000000-0000-0000-0000-000000000000");
     
-    // Insert in batches of 500
     const dbRecords = records.map(toDbRecord);
     for (let i = 0; i < dbRecords.length; i += 500) {
       const batch = dbRecords.slice(i, i + 500);

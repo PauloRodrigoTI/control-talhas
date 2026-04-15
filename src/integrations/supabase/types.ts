@@ -22,6 +22,7 @@ export type Database = {
           carga_teste: string
           colaborador: string
           created_at: string
+          data_teste: string
           defeito: string
           equipamento: string
           fabricacao: string
@@ -32,8 +33,10 @@ export type Database = {
           nao_apto: boolean
           obs: string
           obs_checklist: string
+          oque_foi_feito: string
           pecas_substituidas: string
           qtd: number
+          se_sim_qual: string
           status: string
           sucata: boolean
           tag: string
@@ -45,6 +48,7 @@ export type Database = {
           carga_teste?: string
           colaborador?: string
           created_at?: string
+          data_teste?: string
           defeito?: string
           equipamento?: string
           fabricacao?: string
@@ -55,8 +59,10 @@ export type Database = {
           nao_apto?: boolean
           obs?: string
           obs_checklist?: string
+          oque_foi_feito?: string
           pecas_substituidas?: string
           qtd?: number
+          se_sim_qual?: string
           status?: string
           sucata?: boolean
           tag?: string
@@ -68,6 +74,7 @@ export type Database = {
           carga_teste?: string
           colaborador?: string
           created_at?: string
+          data_teste?: string
           defeito?: string
           equipamento?: string
           fabricacao?: string
@@ -78,8 +85,10 @@ export type Database = {
           nao_apto?: boolean
           obs?: string
           obs_checklist?: string
+          oque_foi_feito?: string
           pecas_substituidas?: string
           qtd?: number
+          se_sim_qual?: string
           status?: string
           sucata?: boolean
           tag?: string

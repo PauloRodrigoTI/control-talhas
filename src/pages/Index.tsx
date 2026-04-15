@@ -95,6 +95,7 @@ export default function Index() {
           </div>
           <div className="flex items-center gap-2 print:hidden">
             <ThemeToggle />
+            <ExcelOnlineSync onSync={syncAndSave} />
             <FileUpload onFile={handleFile} hasData={data.length > 0} />
             {data.length > 0 && (
               <>

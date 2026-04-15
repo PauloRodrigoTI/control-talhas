@@ -95,9 +95,13 @@ export function InspectionTable({ data }: Props) {
                 <TableCell>{row.equipamento}</TableCell>
                 <TableCell>{row.modelo}</TableCell>
                 <TableCell>{row.capacidadeElevacao}</TableCell>
+                <TableCell>{row.cargaTeste}</TableCell>
+                <TableCell>{row.dataTeste}</TableCell>
                 <TableCell>{row.motivoInspecao}</TableCell>
-                <TableCell>{row.defeito}</TableCell>
                 <TableCell>{row.pecasSubstituidas}</TableCell>
+                <TableCell>{row.seSimQual}</TableCell>
+                <TableCell>{row.defeito}</TableCell>
+                <TableCell>{row.oqueFoiFeito}</TableCell>
                 <TableCell>{row.colaborador}</TableCell>
                 <TableCell>{row.mes}</TableCell>
                 <TableCell>

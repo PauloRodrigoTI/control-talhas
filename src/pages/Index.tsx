@@ -126,36 +126,28 @@ export default function Index() {
           </div>
         ) : (
           <>
-            {/* Filters */}
-            <div className="print:hidden">
-              <DashboardFilters data={data} filters={filters} onChange={setFilters} />
-            </div>
-
             {/* KPIs */}
-            <KPICards data={filtered} />
+            <KPICards data={data} />
+
+            {/* Talhas grid (com filtros próprios) */}
+            <TalhasGrid data={data} />
 
             {/* Charts row 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartInspecoesPorEquipamento data={filtered} />
-              <ChartStatusPizza data={filtered} />
+              <ChartInspecoesPorEquipamento data={data} />
+              <ChartStatusPizza data={data} />
             </div>
 
             {/* Charts row 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartMotivo data={filtered} />
-              <ChartEvolucaoMensal data={filtered} />
+              <ChartMotivo data={data} />
+              <ChartEvolucaoMensal data={data} />
             </div>
 
             {/* Charts row 3 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartDefeitos data={filtered} />
-              <ChartColaborador data={filtered} />
-            </div>
-
-            {/* Table */}
-            <div className="card-elevated p-5">
-              <h2 className="text-sm font-semibold mb-4 tracking-tight">Registro de Inspeções</h2>
-              <InspectionTable data={filtered} />
+              <ChartDefeitos data={data} />
+              <ChartColaborador data={data} />
             </div>
           </>
         )}

@@ -29,7 +29,6 @@ const INITIAL_FILTERS: Filters = {
 
 export default function Index() {
   const { data, setData, loading, loadFromDb, saveToDb } = useInspections();
-  const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   const { toast } = useToast();
 
   // Load data from database on mount
@@ -37,18 +36,8 @@ export default function Index() {
     loadFromDb();
   }, [loadFromDb]);
 
-  const handleFile = useCallback(async (file: File) => {
-    try {
-      const records = await parseExcelFile(file);
-      await syncAndSave(records);
-    } catch {
-      toast({ title: "Erro ao importar", description: "Verifique o formato da planilha.", variant: "destructive" });
-    }
-  }, [toast, setData, saveToDb]);
-
   const syncAndSave = useCallback(async (records: InspectionRecord[]) => {
     setData(records);
-    setFilters(INITIAL_FILTERS);
     const saved = await saveToDb(records);
     if (saved) {
       toast({ title: "Dados atualizados", description: `${records.length} registros salvos no banco de dados.` });
@@ -57,17 +46,14 @@ export default function Index() {
     }
   }, [toast, setData, saveToDb]);
 
-  const filtered = useMemo(() => {
-    return data.filter((d) => {
-      if (filters.equipamento && d.equipamento !== filters.equipamento) return false;
-      if (filters.modelo && d.modelo !== filters.modelo) return false;
-      if (filters.motivoInspecao && d.motivoInspecao !== filters.motivoInspecao) return false;
-      if (filters.colaborador && d.colaborador !== filters.colaborador) return false;
-      if (filters.mes && String(d.mes) !== filters.mes) return false;
-      if (filters.status && d.status !== filters.status) return false;
-      return true;
-    });
-  }, [data, filters]);
+  const handleFile = useCallback(async (file: File) => {
+    try {
+      const records = await parseExcelFile(file);
+      await syncAndSave(records);
+    } catch {
+      toast({ title: "Erro ao importar", description: "Verifique o formato da planilha.", variant: "destructive" });
+    }
+  }, [toast, syncAndSave]);
 
   const handleFullscreen = () => {
     document.documentElement.requestFullscreen?.();

@@ -16,7 +16,6 @@ import {
 import { InspectionTable } from "@/components/dashboard/InspectionTable";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
-import { ExcelOnlineSync } from "@/components/dashboard/ExcelOnlineSync";
 import { parseExcelFile } from "@/utils/parseExcel";
 import type { InspectionRecord, DashboardFilters as Filters } from "@/types/inspection";
 
@@ -95,7 +94,6 @@ export default function Index() {
           </div>
           <div className="flex items-center gap-2 print:hidden">
             <ThemeToggle />
-            <ExcelOnlineSync onSync={syncAndSave} />
             <FileUpload onFile={handleFile} hasData={data.length > 0} />
             {data.length > 0 && (
               <>

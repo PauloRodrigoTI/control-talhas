@@ -1,10 +1,9 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { Maximize, FileDown, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useInspections } from "@/hooks/useInspections";
 import { KPICards } from "@/components/dashboard/KPICards";
-import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import {
   ChartInspecoesPorEquipamento,
   ChartStatusPizza,
@@ -13,24 +12,14 @@ import {
   ChartDefeitos,
   ChartColaborador,
 } from "@/components/dashboard/Charts";
-import { InspectionTable } from "@/components/dashboard/InspectionTable";
+import { TalhasGrid } from "@/components/dashboard/TalhasGrid";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 import { parseExcelFile } from "@/utils/parseExcel";
-import type { InspectionRecord, DashboardFilters as Filters } from "@/types/inspection";
-
-const INITIAL_FILTERS: Filters = {
-  equipamento: "",
-  modelo: "",
-  motivoInspecao: "",
-  colaborador: "",
-  mes: "",
-  status: "",
-};
+import type { InspectionRecord } from "@/types/inspection";
 
 export default function Index() {
   const { data, setData, loading, loadFromDb, saveToDb } = useInspections();
-  const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS);
   const { toast } = useToast();
 
   // Load data from database on mount
@@ -38,18 +27,8 @@ export default function Index() {
     loadFromDb();
   }, [loadFromDb]);
 
-  const handleFile = useCallback(async (file: File) => {
-    try {
-      const records = await parseExcelFile(file);
-      await syncAndSave(records);
-    } catch {
-      toast({ title: "Erro ao importar", description: "Verifique o formato da planilha.", variant: "destructive" });
-    }
-  }, [toast, setData, saveToDb]);
-
   const syncAndSave = useCallback(async (records: InspectionRecord[]) => {
     setData(records);
-    setFilters(INITIAL_FILTERS);
     const saved = await saveToDb(records);
     if (saved) {
       toast({ title: "Dados atualizados", description: `${records.length} registros salvos no banco de dados.` });
@@ -58,17 +37,14 @@ export default function Index() {
     }
   }, [toast, setData, saveToDb]);
 
-  const filtered = useMemo(() => {
-    return data.filter((d) => {
-      if (filters.equipamento && d.equipamento !== filters.equipamento) return false;
-      if (filters.modelo && d.modelo !== filters.modelo) return false;
-      if (filters.motivoInspecao && d.motivoInspecao !== filters.motivoInspecao) return false;
-      if (filters.colaborador && d.colaborador !== filters.colaborador) return false;
-      if (filters.mes && String(d.mes) !== filters.mes) return false;
-      if (filters.status && d.status !== filters.status) return false;
-      return true;
-    });
-  }, [data, filters]);
+  const handleFile = useCallback(async (file: File) => {
+    try {
+      const records = await parseExcelFile(file);
+      await syncAndSave(records);
+    } catch {
+      toast({ title: "Erro ao importar", description: "Verifique o formato da planilha.", variant: "destructive" });
+    }
+  }, [toast, syncAndSave]);
 
   const handleFullscreen = () => {
     document.documentElement.requestFullscreen?.();
@@ -127,36 +103,28 @@ export default function Index() {
           </div>
         ) : (
           <>
-            {/* Filters */}
-            <div className="print:hidden">
-              <DashboardFilters data={data} filters={filters} onChange={setFilters} />
-            </div>
-
             {/* KPIs */}
-            <KPICards data={filtered} />
+            <KPICards data={data} />
+
+            {/* Talhas grid (com filtros próprios) */}
+            <TalhasGrid data={data} />
 
             {/* Charts row 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartInspecoesPorEquipamento data={filtered} />
-              <ChartStatusPizza data={filtered} />
+              <ChartInspecoesPorEquipamento data={data} />
+              <ChartStatusPizza data={data} />
             </div>
 
             {/* Charts row 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartMotivo data={filtered} />
-              <ChartEvolucaoMensal data={filtered} />
+              <ChartMotivo data={data} />
+              <ChartEvolucaoMensal data={data} />
             </div>
 
             {/* Charts row 3 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartDefeitos data={filtered} />
-              <ChartColaborador data={filtered} />
-            </div>
-
-            {/* Table */}
-            <div className="card-elevated p-5">
-              <h2 className="text-sm font-semibold mb-4 tracking-tight">Registro de Inspeções</h2>
-              <InspectionTable data={filtered} />
+              <ChartDefeitos data={data} />
+              <ChartColaborador data={data} />
             </div>
           </>
         )}

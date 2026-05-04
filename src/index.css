@@ -42,6 +42,10 @@
     --status-sucata: 220 8% 52%;
     --status-sucata-bg: 220 10% 94%;
     --status-pendente: 215 70% 45%;
+    --status-atencao: 38 95% 50%;
+    --status-atencao-bg: 38 95% 94%;
+    --status-vencido: 0 75% 50%;
+    --status-vencido-bg: 0 75% 96%;
 
     /* Chart palette – vibrant and professional */
     --chart-1: 215 75% 50%;
@@ -118,6 +122,12 @@
   }
   .status-sucata {
     @apply text-[hsl(var(--status-sucata))] bg-[hsl(var(--status-sucata-bg))];
+  }
+  .status-atencao {
+    @apply text-[hsl(var(--status-atencao))] bg-[hsl(var(--status-atencao-bg))];
+  }
+  .status-vencido {
+    @apply text-[hsl(var(--status-vencido))] bg-[hsl(var(--status-vencido-bg))];
   }
   .card-elevated {
     @apply bg-card rounded-xl shadow-sm border border-border/50 hover:shadow-md transition-all duration-300;

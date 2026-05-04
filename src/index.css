@@ -123,6 +123,12 @@
   .status-sucata {
     @apply text-[hsl(var(--status-sucata))] bg-[hsl(var(--status-sucata-bg))];
   }
+  .status-atencao {
+    @apply text-[hsl(var(--status-atencao))] bg-[hsl(var(--status-atencao-bg))];
+  }
+  .status-vencido {
+    @apply text-[hsl(var(--status-vencido))] bg-[hsl(var(--status-vencido-bg))];
+  }
   .card-elevated {
     @apply bg-card rounded-xl shadow-sm border border-border/50 hover:shadow-md transition-all duration-300;
   }

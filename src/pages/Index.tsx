@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useInspections } from "@/hooks/useInspections";
 import { KPICards } from "@/components/dashboard/KPICards";
-import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import {
   ChartInspecoesPorEquipamento,
   ChartStatusPizza,
@@ -13,7 +12,7 @@ import {
   ChartDefeitos,
   ChartColaborador,
 } from "@/components/dashboard/Charts";
-import { InspectionTable } from "@/components/dashboard/InspectionTable";
+import { TalhasGrid } from "@/components/dashboard/TalhasGrid";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 import { parseExcelFile } from "@/utils/parseExcel";

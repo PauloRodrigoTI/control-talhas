@@ -16,16 +16,7 @@ import { TalhasGrid } from "@/components/dashboard/TalhasGrid";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 import { parseExcelFile } from "@/utils/parseExcel";
-import type { InspectionRecord, DashboardFilters as Filters } from "@/types/inspection";
-
-const INITIAL_FILTERS: Filters = {
-  equipamento: "",
-  modelo: "",
-  motivoInspecao: "",
-  colaborador: "",
-  mes: "",
-  status: "",
-};
+import type { InspectionRecord } from "@/types/inspection";
 
 export default function Index() {
   const { data, setData, loading, loadFromDb, saveToDb } = useInspections();

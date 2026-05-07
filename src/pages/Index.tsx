@@ -106,9 +106,6 @@ export default function Index() {
             {/* KPIs */}
             <KPICards data={data} />
 
-            {/* Talhas grid (com filtros próprios) */}
-            <TalhasGrid data={data} />
-
             {/* Charts row 1 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <ChartInspecoesPorEquipamento data={data} />

@@ -106,23 +106,23 @@ export default function Index() {
             {/* KPIs */}
             <KPICards data={data} />
 
-            {/* Charts row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartInspecoesPorEquipamento data={data} />
+            {/* Evolução Mensal — full width */}
+            <ChartEvolucaoMensal data={data} />
+
+            {/* Charts row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              <div className="lg:col-span-2">
+                <ChartInspecoesPorEquipamento data={data} />
+              </div>
               <ChartStatusPizza data={data} />
             </div>
 
-            {/* Charts row 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <ChartMotivo data={data} />
-              <ChartEvolucaoMensal data={data} />
-            </div>
-
-            {/* Charts row 3 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartDefeitos data={data} />
               <ChartColaborador data={data} />
             </div>
+
+            <ChartDefeitos data={data} />
           </>
         )}
       </main>

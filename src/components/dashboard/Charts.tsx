@@ -66,13 +66,17 @@ function countBy(data: InspectionRecord[], key: keyof InspectionRecord) {
 }
 
 /* ── Wrapper Card ── */
-function ChartCard({ title, children, className = "h-72" }: { title: string; children: React.ReactElement; className?: string }) {
+function ChartCard({ title, subtitle, children, className = "h-72" }: { title: string; subtitle?: string; children: React.ReactElement; className?: string }) {
   return (
-    <Card className="card-elevated border-none print:break-inside-avoid print:shadow-none">
-      <CardHeader className="pb-1 pt-4 px-5">
-        <CardTitle className="text-sm font-semibold tracking-tight text-foreground">{title}</CardTitle>
+    <Card className="rounded-xl border border-border bg-card shadow-sm hover:shadow-md transition-shadow print:break-inside-avoid print:shadow-none">
+      <CardHeader className="pb-2 pt-4 px-5 border-b border-border/60">
+        <CardTitle className="text-sm font-bold tracking-wide uppercase text-foreground flex items-center gap-2">
+          <span className="inline-block h-3 w-1 rounded-sm bg-primary" />
+          {title}
+        </CardTitle>
+        {subtitle && <p className="text-[11px] text-muted-foreground font-medium">{subtitle}</p>}
       </CardHeader>
-      <CardContent className={`px-3 pb-4 ${className}`}>
+      <CardContent className={`px-3 pt-3 pb-4 ${className}`}>
         <ResponsiveContainer>{children}</ResponsiveContainer>
       </CardContent>
     </Card>

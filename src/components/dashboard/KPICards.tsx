@@ -6,11 +6,11 @@ interface KPICardsProps {
 }
 
 const CARDS_CONFIG = [
-  { key: "total", label: "Total Inspecionados", icon: ClipboardCheck, gradient: "from-[hsl(215,75%,50%)] to-[hsl(200,80%,55%)]", bg: "bg-[hsl(215,75%,50%,0.08)]", text: "text-primary" },
-  { key: "aptos", label: "Equipamentos Aptos", icon: CheckCircle2, gradient: "from-[hsl(152,60%,40%)] to-[hsl(165,55%,48%)]", bg: "bg-[hsl(152,60%,40%,0.08)]", text: "text-status-apto" },
-  { key: "naoAptos", label: "Não Aptos", icon: XCircle, gradient: "from-[hsl(0,68%,52%)] to-[hsl(15,75%,56%)]", bg: "bg-[hsl(0,68%,52%,0.08)]", text: "text-status-nao-apto" },
-  { key: "sucata", label: "Sucata", icon: Trash2, gradient: "from-[hsl(220,8%,52%)] to-[hsl(220,12%,62%)]", bg: "bg-[hsl(220,8%,52%,0.08)]", text: "text-status-sucata" },
-  { key: "conformidade", label: "% Conformidade", icon: TrendingUp, gradient: "from-[hsl(215,75%,50%)] to-[hsl(152,60%,40%)]", bg: "bg-[hsl(215,75%,50%,0.08)]", text: "text-primary" },
+  { key: "total",        label: "Total Inspecionados", icon: ClipboardCheck, accent: "primary",       barColor: "bg-primary" },
+  { key: "aptos",        label: "Equipamentos Aptos",  icon: CheckCircle2,   accent: "status-apto",    barColor: "bg-[hsl(var(--status-apto))]" },
+  { key: "naoAptos",     label: "Não Aptos",           icon: XCircle,        accent: "status-nao-apto",barColor: "bg-[hsl(var(--status-nao-apto))]" },
+  { key: "sucata",       label: "Sucata",              icon: Trash2,         accent: "status-sucata",  barColor: "bg-[hsl(var(--status-sucata))]" },
+  { key: "conformidade", label: "% Conformidade",      icon: TrendingUp,     accent: "accent",         barColor: "bg-accent" },
 ] as const;
 
 export function KPICards({ data }: KPICardsProps) {
@@ -24,21 +24,29 @@ export function KPICards({ data }: KPICardsProps) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {CARDS_CONFIG.map((c) => (
-        <div key={c.key} className="card-elevated group relative overflow-hidden p-5">
-          {/* Decorative gradient bar */}
-          <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.gradient} opacity-80`} />
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <p className="text-[0.7rem] font-medium uppercase tracking-wider text-muted-foreground">{c.label}</p>
-              <p className="text-2xl font-bold tracking-tight">{values[c.key]}</p>
-            </div>
-            <div className={`p-2.5 rounded-xl ${c.bg}`}>
-              <c.icon className={`h-5 w-5 ${c.text}`} />
+      {CARDS_CONFIG.map((c) => {
+        const colorVar = `hsl(var(--${c.accent}))`;
+        return (
+          <div
+            key={c.key}
+            className="relative overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-5"
+          >
+            <div className={`absolute top-0 left-0 right-0 h-1 ${c.barColor}`} />
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-1.5 min-w-0">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground">{c.label}</p>
+                <p className="text-3xl font-bold tracking-tight leading-none">{values[c.key]}</p>
+              </div>
+              <div
+                className="p-2.5 rounded-xl flex-shrink-0"
+                style={{ backgroundColor: `color-mix(in hsl, ${colorVar} 12%, transparent)` }}
+              >
+                <c.icon className="h-5 w-5" style={{ color: colorVar }} />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

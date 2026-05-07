@@ -57,15 +57,15 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-card/90 border-b border-border/60 px-4 py-3 md:px-8 print:border-none print:relative">
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-card/95 border-b border-border shadow-sm px-4 py-3 md:px-8 print:border-none print:relative">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between max-w-[1600px] mx-auto">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-[hsl(215,75%,50%)] to-[hsl(200,80%,55%)]">
+            <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary to-primary/70 shadow-md">
               <BarChart3 className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
               <h1 className="text-lg font-bold md:text-xl tracking-tight">Controle de Inspeção de Talhas</h1>
-              <p className="text-xs text-muted-foreground">Dashboard de manutenção e inspeção industrial</p>
+              <p className="text-xs text-muted-foreground font-medium">Dashboard de manutenção e inspeção industrial</p>
             </div>
           </div>
           <div className="flex items-center gap-2 print:hidden">
@@ -73,10 +73,10 @@ export default function Index() {
             <FileUpload onFile={handleFile} hasData={data.length > 0} />
             {data.length > 0 && (
               <>
-                <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2 text-xs">
+                <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-2 text-xs font-semibold">
                   <FileDown className="h-3.5 w-3.5" /> Exportar PDF
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleFullscreen} className="gap-2 text-xs">
+                <Button variant="outline" size="sm" onClick={handleFullscreen} className="gap-2 text-xs font-semibold">
                   <Maximize className="h-3.5 w-3.5" /> Apresentação
                 </Button>
               </>

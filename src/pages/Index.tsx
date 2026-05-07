@@ -12,7 +12,7 @@ import {
   ChartDefeitos,
   ChartColaborador,
 } from "@/components/dashboard/Charts";
-import { TalhasGrid } from "@/components/dashboard/TalhasGrid";
+
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 import { parseExcelFile } from "@/utils/parseExcel";

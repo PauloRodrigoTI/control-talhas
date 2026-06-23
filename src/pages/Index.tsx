@@ -4,8 +4,15 @@ import {
   useState,
   useMemo,
 } from "react";
-import { Maximize, FileDown, BarChart3 } from "lucide-react";
+import { Maximize, FileDown, BarChart3, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useInspections } from "@/hooks/useInspections";
 import { KPICards } from "@/components/dashboard/KPICards";
@@ -18,83 +25,39 @@ import {
   ChartColaborador,
   ChartTalhasCriticas,
 } from "@/components/dashboard/Charts";
-import { MaintenanceTable }
-  from "@/components/dashboard/MaintenanceTable";
+import { MaintenanceTable } from "@/components/dashboard/MaintenanceTable";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 import { parseExcelFile } from "@/utils/parseExcel";
 import type { InspectionRecord } from "@/types/inspection";
-import {
-  TalhaDetails,
-} from "@/components/dashboard/TalhaDetails";
-import {
-  CriticalAlerts,
-} from "@/components/dashboard/CriticalAlerts";
-import {
-  TalhaHealth,
-} from "@/components/dashboard/TalhaHealth";
-import {
-  ExecutiveKPIs,
-} from "@/components/dashboard/ExecutiveKPIs";
-import {
-  TopTalhas,
-} from "@/components/dashboard/TopTalhas";
-import {
-  ReliabilityCenter,
-} from "@/components/dashboard/ReliabilityCenter";
+import { TalhaDetails } from "@/components/dashboard/TalhaDetails";
+import { CriticalAlerts } from "@/components/dashboard/CriticalAlerts";
+import { TalhaHealth } from "@/components/dashboard/TalhaHealth";
+import { ExecutiveKPIs } from "@/components/dashboard/ExecutiveKPIs";
+import { TopTalhas } from "@/components/dashboard/TopTalhas";
+import { ReliabilityCenter } from "@/components/dashboard/ReliabilityCenter";
 
 export default function Index() {
   const { data, setData, loading, loadFromDb, saveToDb } = useInspections();
   const { toast } = useToast();
-  const [equipamentoFiltro, setEquipamentoFiltro] =
-    useState("");
-
-  const [statusFiltro, setStatusFiltro] =
-    useState("");
-
-  const [colaboradorFiltro, setColaboradorFiltro] =
-    useState("");
-
-  const [mesFiltro, setMesFiltro] =
-    useState("");
-
-  const [selectedTalha, setSelectedTalha] =
-    useState<string | null>(null);
+  const [equipamentoFiltro, setEquipamentoFiltro] = useState("");
+  const [statusFiltro, setStatusFiltro] = useState("");
+  const [colaboradorFiltro, setColaboradorFiltro] = useState("");
+  const [mesFiltro, setMesFiltro] = useState("");
+  const [selectedTalha, setSelectedTalha] = useState<string | null>(null);
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
-      const equipamentoOk =
-        !equipamentoFiltro ||
-        item.equipamento === equipamentoFiltro;
-
-      const statusOk =
-        !statusFiltro ||
-        item.status === statusFiltro;
-
-      const colaboradorOk =
-        !colaboradorFiltro ||
-        item.colaborador === colaboradorFiltro;
-
-      const mesOk =
-        !mesFiltro ||
-        item.mes === mesFiltro;
-
-      return (
-        equipamentoOk &&
-        statusOk &&
-        colaboradorOk &&
-        mesOk
-      );
+      const equipamentoOk = !equipamentoFiltro || item.equipamento === equipamentoFiltro;
+      const statusOk = !statusFiltro || item.status === statusFiltro;
+      const colaboradorOk = !colaboradorFiltro || item.colaborador === colaboradorFiltro;
+      const mesOk = !mesFiltro || item.mes === mesFiltro;
+      return equipamentoOk && statusOk && colaboradorOk && mesOk;
     });
-  }, [
-    data,
-    equipamentoFiltro,
-    statusFiltro,
-    colaboradorFiltro,
-    mesFiltro,
-  ]);
+  }, [data, equipamentoFiltro, statusFiltro, colaboradorFiltro, mesFiltro]);
 
-  // Load data from database on mount
+  const activeFiltersCount = [equipamentoFiltro, statusFiltro, colaboradorFiltro, mesFiltro].filter(Boolean).length;
+
   useEffect(() => {
     loadFromDb();
   }, [loadFromDb]);
@@ -118,12 +81,14 @@ export default function Index() {
     }
   }, [toast, syncAndSave]);
 
-  const handleFullscreen = () => {
-    document.documentElement.requestFullscreen?.();
-  };
+  const handleFullscreen = () => document.documentElement.requestFullscreen?.();
+  const handleExportPDF = () => window.print();
 
-  const handleExportPDF = () => {
-    window.print();
+  const clearFilters = () => {
+    setEquipamentoFiltro("");
+    setStatusFiltro("");
+    setColaboradorFiltro("");
+    setMesFiltro("");
   };
 
   return (
@@ -136,8 +101,12 @@ export default function Index() {
               <BarChart3 className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-lg font-bold md:text-xl tracking-tight">Controle de Inspeção de Talhas</h1>
-              <p className="text-xs text-muted-foreground font-medium">Dashboard de manutenção e inspeção industrial</p>
+              <h1 className="text-lg font-bold md:text-xl tracking-tight">
+                Controle de Inspeção de Talhas
+              </h1>
+              <p className="text-xs text-muted-foreground font-medium">
+                Dashboard de manutenção e inspeção industrial
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2 print:hidden">
@@ -175,144 +144,89 @@ export default function Index() {
           </div>
         ) : (
           <>
-            <div className="bg-card border rounded-xl p-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
-                <select
-                  value={equipamentoFiltro}
-                  onChange={(e) =>
-                    setEquipamentoFiltro(
-                      e.target.value
-                    )
-                  }
-                  className="border rounded-md p-2"
-                >
-                  <option value="">
-                    Todos Equipamentos
-                  </option>
-
-                  {[
-                    ...new Set(
-                      data.map(
-                        (d) => d.equipamento
-                      )
-                    ),
-                  ].map((item) => (
-                    <option
-                      key={item}
-                      value={item}
+            {/* Filters — using Shadcn Select */}
+            <div className="bg-card border border-border/60 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Filtros
+                </span>
+                {activeFiltersCount > 0 && (
+                  <>
+                    <span className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      {activeFiltersCount} ativo{activeFiltersCount !== 1 ? "s" : ""}
+                    </span>
+                    <button
+                      onClick={clearFilters}
+                      className="ml-auto text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
                     >
-                      {item}
-                    </option>
-                  ))}
-                </select>
+                      Limpar filtros
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                {/* Equipamento */}
+                <Select value={equipamentoFiltro || "_all"} onValueChange={(v) => setEquipamentoFiltro(v === "_all" ? "" : v)}>
+                  <SelectTrigger className="text-sm h-9">
+                    <SelectValue placeholder="Todos Equipamentos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_all">Todos Equipamentos</SelectItem>
+                    {[...new Set(data.map((d) => d.equipamento))].sort().map((item) => (
+                      <SelectItem key={item} value={item}>{item}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-                <select
-                  value={statusFiltro}
-                  onChange={(e) =>
-                    setStatusFiltro(
-                      e.target.value
-                    )
-                  }
-                  className="border rounded-md p-2"
-                >
-                  <option value="">
-                    Todos Status
-                  </option>
+                {/* Status */}
+                <Select value={statusFiltro || "_all"} onValueChange={(v) => setStatusFiltro(v === "_all" ? "" : v)}>
+                  <SelectTrigger className="text-sm h-9">
+                    <SelectValue placeholder="Todos Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_all">Todos Status</SelectItem>
+                    <SelectItem value="Apto">Apto</SelectItem>
+                    <SelectItem value="Não Apto">Não Apto</SelectItem>
+                    <SelectItem value="Sucata">Sucata</SelectItem>
+                  </SelectContent>
+                </Select>
 
-                  <option value="Apto">
-                    Apto
-                  </option>
+                {/* Colaborador */}
+                <Select value={colaboradorFiltro || "_all"} onValueChange={(v) => setColaboradorFiltro(v === "_all" ? "" : v)}>
+                  <SelectTrigger className="text-sm h-9">
+                    <SelectValue placeholder="Todos Colaboradores" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_all">Todos Colaboradores</SelectItem>
+                    {[...new Set(data.map((d) => d.colaborador))].sort().map((item) => (
+                      <SelectItem key={item} value={item}>{item}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-                  <option value="Não Apto">
-                    Não Apto
-                  </option>
-
-                  <option value="Sucata">
-                    Sucata
-                  </option>
-                </select>
-
-                <select
-                  value={colaboradorFiltro}
-                  onChange={(e) =>
-                    setColaboradorFiltro(
-                      e.target.value
-                    )
-                  }
-                  className="border rounded-md p-2"
-                >
-                  <option value="">
-                    Todos Colaboradores
-                  </option>
-
-                  {[
-                    ...new Set(
-                      data.map(
-                        (d) => d.colaborador
-                      )
-                    ),
-                  ].map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                    >
-                      {item}
-                    </option>
-                  ))}
-                </select>
-
-                <select
-                  value={mesFiltro}
-                  onChange={(e) =>
-                    setMesFiltro(
-                      e.target.value
-                    )
-                  }
-                  className="border rounded-md p-2"
-                >
-                  <option value="">
-                    Todos Meses
-                  </option>
-
-                  {[
-                    ...new Set(
-                      data.map((d) => d.mes)
-                    ),
-                  ].map((item) => (
-                    <option
-                      key={item}
-                      value={item}
-                    >
-                      {item}
-                    </option>
-                  ))}
-                </select>
-
+                {/* Mês */}
+                <Select value={mesFiltro || "_all"} onValueChange={(v) => setMesFiltro(v === "_all" ? "" : v)}>
+                  <SelectTrigger className="text-sm h-9">
+                    <SelectValue placeholder="Todos Meses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="_all">Todos Meses</SelectItem>
+                    {[...new Set(data.map((d) => d.mes))].map((item) => (
+                      <SelectItem key={item} value={item}>{item}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
             {/* KPIs */}
             <KPICards data={filteredData} />
-
-            <ReliabilityCenter
-              data={filteredData}
-            />
-
-            <ExecutiveKPIs
-              data={filteredData}
-            />
-
-            <TalhaHealth
-              data={filteredData}
-            />
-
-            <TopTalhas
-              data={filteredData}
-            />
-
-            <CriticalAlerts
-              data={filteredData}
-            />
+            <ReliabilityCenter data={filteredData} />
+            <ExecutiveKPIs data={filteredData} />
+            <TalhaHealth data={filteredData} />
+            <TopTalhas data={filteredData} />
+            <CriticalAlerts data={filteredData} />
 
             {/* Evolução Mensal — full width */}
             <ChartEvolucaoMensal data={filteredData} />
@@ -326,32 +240,24 @@ export default function Index() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartMotivo
-                data={filteredData}
-              />
+              <ChartMotivo data={filteredData} />
               <ChartColaborador data={filteredData} />
             </div>
 
-            {/* Defeitos + Talhas Críticas */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <ChartDefeitos data={filteredData} />
               <ChartTalhasCriticas data={filteredData} />
             </div>
 
             {/* Histórico Completo */}
-            <MaintenanceTable
-              data={filteredData}
-              onSelectTalha={setSelectedTalha}
-            />
+            <MaintenanceTable data={filteredData} onSelectTalha={setSelectedTalha} />
 
             {/* Modal de Detalhes da Talha */}
             {selectedTalha && (
               <TalhaDetails
                 equipamento={selectedTalha}
                 data={data}
-                onClose={() =>
-                  setSelectedTalha(null)
-                }
+                onClose={() => setSelectedTalha(null)}
               />
             )}
           </>

@@ -1,7 +1,7 @@
 export interface InspectionRecord {
   equipamento: string;
   modelo: string;
-  fabricacao: string;
+  fabricante: string;
   anoFabricacao: string;
   tag: string;
   capacidadeElevacao: string;

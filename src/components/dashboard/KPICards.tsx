@@ -1,52 +1,122 @@
-import { ClipboardCheck, CheckCircle2, XCircle, Trash2, TrendingUp } from "lucide-react";
+import {
+  ClipboardCheck,
+  CheckCircle2,
+  XCircle,
+  Trash2,
+  TrendingUp,
+  AlertTriangle,
+  Wrench,
+  Factory,
+} from "lucide-react";
+
 import type { InspectionRecord } from "@/types/inspection";
 
 interface KPICardsProps {
   data: InspectionRecord[];
 }
 
-const CARDS_CONFIG = [
-  { key: "total",        label: "Total Inspecionados", icon: ClipboardCheck, accent: "primary",       barColor: "bg-primary" },
-  { key: "aptos",        label: "Equipamentos Aptos",  icon: CheckCircle2,   accent: "status-apto",    barColor: "bg-[hsl(var(--status-apto))]" },
-  { key: "naoAptos",     label: "Não Aptos",           icon: XCircle,        accent: "status-nao-apto",barColor: "bg-[hsl(var(--status-nao-apto))]" },
-  { key: "sucata",       label: "Sucata",              icon: Trash2,         accent: "status-sucata",  barColor: "bg-[hsl(var(--status-sucata))]" },
-  { key: "conformidade", label: "% Conformidade",      icon: TrendingUp,     accent: "accent",         barColor: "bg-accent" },
-] as const;
-
-export function KPICards({ data }: KPICardsProps) {
+export function KPICards({
+  data,
+}: KPICardsProps) {
   const total = data.length;
-  const aptos = data.filter((d) => d.status === "Apto").length;
-  const naoAptos = data.filter((d) => d.status === "Não Apto").length;
-  const sucata = data.filter((d) => d.status === "Sucata").length;
-  const conformidade = total > 0 ? ((aptos / total) * 100).toFixed(1) : "0";
 
-  const values: Record<string, string | number> = { total, aptos, naoAptos, sucata, conformidade: `${conformidade}%` };
+  const aptos = data.filter(
+    (d) => d.status === "Apto"
+  ).length;
+
+  const naoAptos = data.filter(
+    (d) => d.status === "Não Apto"
+  ).length;
+
+  const sucata = data.filter(
+    (d) => d.status === "Sucata"
+  ).length;
+
+  const conformidade =
+    total > 0
+      ? ((aptos / total) * 100).toFixed(1)
+      : "0";
+
+  const equipamentos =
+    new Set(
+      data.map((d) => d.equipamento)
+    ).size;
+
+  const defeitos = data.filter(
+    (d) => d.defeito?.trim()
+  ).length;
+
+  const criticas = data.filter(
+    (d) =>
+      d.status === "Não Apto" ||
+      d.status === "Sucata"
+  ).length;
+
+  const cards = [
+    {
+      title: "Inspeções",
+      value: total,
+      icon: ClipboardCheck,
+    },
+    {
+      title: "Aptos",
+      value: aptos,
+      icon: CheckCircle2,
+    },
+    {
+      title: "Não Aptos",
+      value: naoAptos,
+      icon: XCircle,
+    },
+    {
+      title: "Sucata",
+      value: sucata,
+      icon: Trash2,
+    },
+    {
+      title: "Conformidade",
+      value: `${conformidade}%`,
+      icon: TrendingUp,
+    },
+    {
+      title: "Talhas",
+      value: equipamentos,
+      icon: Factory,
+    },
+    {
+      title: "Defeitos",
+      value: defeitos,
+      icon: Wrench,
+    },
+    {
+      title: "Críticas",
+      value: criticas,
+      icon: AlertTriangle,
+    },
+  ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {CARDS_CONFIG.map((c) => {
-        const colorVar = `hsl(var(--${c.accent}))`;
-        return (
-          <div
-            key={c.key}
-            className="relative overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-5"
-          >
-            <div className={`absolute top-0 left-0 right-0 h-1 ${c.barColor}`} />
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1.5 min-w-0">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-wider text-muted-foreground">{c.label}</p>
-                <p className="text-3xl font-bold tracking-tight leading-none">{values[c.key]}</p>
-              </div>
-              <div
-                className="p-2.5 rounded-xl flex-shrink-0"
-                style={{ backgroundColor: `color-mix(in hsl, ${colorVar} 12%, transparent)` }}
-              >
-                <c.icon className="h-5 w-5" style={{ color: colorVar }} />
-              </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
+      {cards.map((card) => (
+        <div
+          key={card.title}
+          className="bg-card border rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-300"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-muted-foreground uppercase">
+                {card.title}
+              </p>
+
+              <h2 className="text-3xl font-bold mt-2">
+                {card.value}
+              </h2>
             </div>
+
+            <card.icon className="h-8 w-8 text-primary" />
           </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 }

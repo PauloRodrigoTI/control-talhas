@@ -1,4 +1,9 @@
-import { useCallback, useEffect } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useMemo,
+} from "react";
 import { Maximize, FileDown, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -11,16 +16,83 @@ import {
   ChartEvolucaoMensal,
   ChartDefeitos,
   ChartColaborador,
+  ChartTalhasCriticas,
 } from "@/components/dashboard/Charts";
-
+import { MaintenanceTable }
+  from "@/components/dashboard/MaintenanceTable";
 import { FileUpload } from "@/components/dashboard/FileUpload";
 import { ThemeToggle } from "@/components/dashboard/ThemeToggle";
 import { parseExcelFile } from "@/utils/parseExcel";
 import type { InspectionRecord } from "@/types/inspection";
+import {
+  TalhaDetails,
+} from "@/components/dashboard/TalhaDetails";
+import {
+  CriticalAlerts,
+} from "@/components/dashboard/CriticalAlerts";
+import {
+  TalhaHealth,
+} from "@/components/dashboard/TalhaHealth";
+import {
+  ExecutiveKPIs,
+} from "@/components/dashboard/ExecutiveKPIs";
+import {
+  TopTalhas,
+} from "@/components/dashboard/TopTalhas";
+import {
+  ReliabilityCenter,
+} from "@/components/dashboard/ReliabilityCenter";
 
 export default function Index() {
   const { data, setData, loading, loadFromDb, saveToDb } = useInspections();
   const { toast } = useToast();
+  const [equipamentoFiltro, setEquipamentoFiltro] =
+    useState("");
+
+  const [statusFiltro, setStatusFiltro] =
+    useState("");
+
+  const [colaboradorFiltro, setColaboradorFiltro] =
+    useState("");
+
+  const [mesFiltro, setMesFiltro] =
+    useState("");
+
+  const [selectedTalha, setSelectedTalha] =
+    useState<string | null>(null);
+
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      const equipamentoOk =
+        !equipamentoFiltro ||
+        item.equipamento === equipamentoFiltro;
+
+      const statusOk =
+        !statusFiltro ||
+        item.status === statusFiltro;
+
+      const colaboradorOk =
+        !colaboradorFiltro ||
+        item.colaborador === colaboradorFiltro;
+
+      const mesOk =
+        !mesFiltro ||
+        item.mes === mesFiltro;
+
+      return (
+        equipamentoOk &&
+        statusOk &&
+        colaboradorOk &&
+        mesOk
+      );
+    });
+  }, [
+    data,
+    equipamentoFiltro,
+    statusFiltro,
+    colaboradorFiltro,
+    mesFiltro,
+  ]);
 
   // Load data from database on mount
   useEffect(() => {
@@ -103,26 +175,185 @@ export default function Index() {
           </div>
         ) : (
           <>
+            <div className="bg-card border rounded-xl p-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                <select
+                  value={equipamentoFiltro}
+                  onChange={(e) =>
+                    setEquipamentoFiltro(
+                      e.target.value
+                    )
+                  }
+                  className="border rounded-md p-2"
+                >
+                  <option value="">
+                    Todos Equipamentos
+                  </option>
+
+                  {[
+                    ...new Set(
+                      data.map(
+                        (d) => d.equipamento
+                      )
+                    ),
+                  ].map((item) => (
+                    <option
+                      key={item}
+                      value={item}
+                    >
+                      {item}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={statusFiltro}
+                  onChange={(e) =>
+                    setStatusFiltro(
+                      e.target.value
+                    )
+                  }
+                  className="border rounded-md p-2"
+                >
+                  <option value="">
+                    Todos Status
+                  </option>
+
+                  <option value="Apto">
+                    Apto
+                  </option>
+
+                  <option value="Não Apto">
+                    Não Apto
+                  </option>
+
+                  <option value="Sucata">
+                    Sucata
+                  </option>
+                </select>
+
+                <select
+                  value={colaboradorFiltro}
+                  onChange={(e) =>
+                    setColaboradorFiltro(
+                      e.target.value
+                    )
+                  }
+                  className="border rounded-md p-2"
+                >
+                  <option value="">
+                    Todos Colaboradores
+                  </option>
+
+                  {[
+                    ...new Set(
+                      data.map(
+                        (d) => d.colaborador
+                      )
+                    ),
+                  ].map((item) => (
+                    <option
+                      key={item}
+                      value={item}
+                    >
+                      {item}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={mesFiltro}
+                  onChange={(e) =>
+                    setMesFiltro(
+                      e.target.value
+                    )
+                  }
+                  className="border rounded-md p-2"
+                >
+                  <option value="">
+                    Todos Meses
+                  </option>
+
+                  {[
+                    ...new Set(
+                      data.map((d) => d.mes)
+                    ),
+                  ].map((item) => (
+                    <option
+                      key={item}
+                      value={item}
+                    >
+                      {item}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+            </div>
             {/* KPIs */}
-            <KPICards data={data} />
+            <KPICards data={filteredData} />
+
+            <ReliabilityCenter
+              data={filteredData}
+            />
+
+            <ExecutiveKPIs
+              data={filteredData}
+            />
+
+            <TalhaHealth
+              data={filteredData}
+            />
+
+            <TopTalhas
+              data={filteredData}
+            />
+
+            <CriticalAlerts
+              data={filteredData}
+            />
 
             {/* Evolução Mensal — full width */}
-            <ChartEvolucaoMensal data={data} />
+            <ChartEvolucaoMensal data={filteredData} />
 
             {/* Charts row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
               <div className="lg:col-span-2">
-                <ChartInspecoesPorEquipamento data={data} />
+                <ChartInspecoesPorEquipamento data={filteredData} />
               </div>
-              <ChartStatusPizza data={data} />
+              <ChartStatusPizza data={filteredData} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartMotivo data={data} />
-              <ChartColaborador data={data} />
+              <ChartMotivo
+                data={filteredData}
+              />
+              <ChartColaborador data={filteredData} />
             </div>
 
-            <ChartDefeitos data={data} />
+            {/* Defeitos + Talhas Críticas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <ChartDefeitos data={filteredData} />
+              <ChartTalhasCriticas data={filteredData} />
+            </div>
+
+            {/* Histórico Completo */}
+            <MaintenanceTable
+              data={filteredData}
+              onSelectTalha={setSelectedTalha}
+            />
+
+            {/* Modal de Detalhes da Talha */}
+            {selectedTalha && (
+              <TalhaDetails
+                equipamento={selectedTalha}
+                data={data}
+                onClose={() =>
+                  setSelectedTalha(null)
+                }
+              />
+            )}
           </>
         )}
       </main>

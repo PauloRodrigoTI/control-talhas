@@ -42,7 +42,10 @@ export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
           const n = normalize(key);
           if (n === "EQUIPAMENTO") colMap.equipamento = key;
           else if (n === "MODELO") colMap.modelo = key;
-          else if (matchCol(n, ["FABRICACAO"]) && !n.includes("ANO")) colMap.fabricacao = key;
+          else if (
+            n === "FABRICANTE"
+          )
+            colMap.fabricante = key;
           else if (matchCol(n, ["ANO DE FABRICACAO", "ANO"])) colMap.anoFabricacao = key;
           else if (n === "TAG") colMap.tag = key;
           else if (matchCol(n, ["CAPACIDADE"])) colMap.capacidadeElevacao = key;
@@ -98,9 +101,10 @@ export function parseExcelFile(file: File): Promise<InspectionRecord[]> {
             }
 
             return {
-              equipamento: g(row, "equipamento"),
+              equipamento:
+                `${g(row, "equipamento")} ${g(row, "tag")}`.trim(),
               modelo: g(row, "modelo"),
-              fabricacao: g(row, "fabricacao"),
+              fabricante: g(row, "fabricante"),
               anoFabricacao: g(row, "anoFabricacao"),
               tag: g(row, "tag"),
               capacidadeElevacao: g(row, "capacidadeElevacao"),

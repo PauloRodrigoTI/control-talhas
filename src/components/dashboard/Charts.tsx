@@ -269,3 +269,97 @@ export function ChartColaborador({ data }: { data: InspectionRecord[] }) {
     </ChartCard>
   );
 }
+
+export function ChartTalhasCriticas({
+  data,
+}: {
+  data: InspectionRecord[];
+}) {
+  const map: Record<string, number> = {};
+
+  data.forEach((d) => {
+    if (
+      d.status === "Não Apto" ||
+      d.status === "Sucata"
+    ) {
+      map[d.equipamento] =
+        (map[d.equipamento] || 0) + 1;
+    }
+  });
+
+  const chartData = Object.entries(map)
+    .map(([name, value]) => ({
+      name,
+      value,
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
+
+  return (
+    <ChartCard
+      title="Top 10 Talhas Críticas"
+      subtitle="Equipamentos com maior número de reprovações"
+    >
+      <BarChart
+        data={chartData}
+        layout="vertical"
+        margin={{
+          left: 10,
+          right: 40,
+          top: 10,
+          bottom: 10,
+        }}
+      >
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke={gridStroke}
+          horizontal={false}
+        />
+
+        <XAxis
+          type="number"
+          tick={axisStyle}
+          axisLine={false}
+          tickLine={false}
+          allowDecimals={false}
+        />
+
+        <YAxis
+          type="category"
+          dataKey="name"
+          width={120}
+          tick={axisStyle}
+          axisLine={false}
+          tickLine={false}
+        />
+
+        <Tooltip
+          content={<CustomTooltip />}
+        />
+
+        <Bar
+          dataKey="value"
+          name="Ocorrências"
+          radius={[0, 6, 6, 0]}
+          barSize={22}
+        >
+          {chartData.map((_, index) => (
+            <Cell
+              key={index}
+              fill={`hsl(0, ${
+                70 + index * 2
+              }%, ${
+                55 - index
+              }%)`}
+            />
+          ))}
+
+          <LabelList
+            dataKey="value"
+            content={renderBarLabel}
+          />
+        </Bar>
+      </BarChart>
+    </ChartCard>
+  );
+}
